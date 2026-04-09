@@ -9,6 +9,7 @@ from frappe.query_builder.functions import DateFormat, Function
 from frappe.query_builder.utils import DocType
 from frappe.utils.data import add_to_date, cstr, flt, now_datetime
 from frappe.utils.formatters import format_value
+from frappe.query_builder import Field
 
 
 def get_monthly_results(
@@ -39,7 +40,7 @@ def get_monthly_results(
 			table=goal_doctype,
 			fields=[
 				DateFormat(Table[date_col], date_format).as_("month_year"),
-				Function(aggregation, goal_field),
+				Function(aggregation, Field(goal_field)),
 			],
 			filters=filters,
 			ignore_permissions=False,
