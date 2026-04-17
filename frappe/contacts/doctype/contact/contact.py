@@ -338,7 +338,6 @@ def update_contact(doc, method):
 		contact.flags.ignore_mandatory = True
 		contact.save(ignore_permissions=True)
 
-
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
 def contact_query(doctype, txt, searchfield, start, page_len, filters):
@@ -364,9 +363,13 @@ def contact_query(doctype, txt, searchfield, start, page_len, filters):
 			`tabContact`.`{searchfield}` like %(txt)s
 			{get_match_cond(doctype)}
 		order by
-			if(locate(%(_txt)s, `tabContact`.full_name), locate(%(_txt)s, `tabContact`.company_name), 99999),
+			CASE
+				WHEN strpos(`tabContact`.full_name, %(_txt)s) > 0
+				THEN strpos(`tabContact`.company_name, %(_txt)s)
+				ELSE 99999
+			END,
 			`tabContact`.idx desc, `tabContact`.full_name
-		limit %(start)s, %(page_len)s """,
+		LIMIT %(page_len)s OFFSET %(start)s """,
 		{
 			"txt": "%" + txt + "%",
 			"_txt": txt.replace("%", ""),
